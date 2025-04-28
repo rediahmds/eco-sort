@@ -1,0 +1,17 @@
+[project]
+name = "eco-sort"
+version = "0.1.0"
+description = "EcoSort computer vision backend that will classify waste types using a camera"
+authors = [
+    {name = "rediahmds_fedora.ws",email = "redi.ngoding@gmail.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
