@@ -21,6 +21,7 @@ class EcoSortAI:
         """
         Start capturing video from the camera.
         """
+
         try:
             while self.is_opened:
                 is_success, frame = self.capture.read()
