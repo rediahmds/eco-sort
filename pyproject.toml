@@ -9,6 +9,9 @@ license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "opencv-python (>=4.11.0.86,<5.0.0.0)",
+    "cvzone (>=1.6.1,<2.0.0)",
+    "ultralytics (>=8.3.119,<9.0.0)"
 ]
 
 
