@@ -26,14 +26,14 @@ class EcoSortAI:
                 is_success, frame = self.capture.read()
                 if not is_success:
                     raise Exception("Failed to read frame from camera.")
-                
+
                 cv2.imshow("EcoSortAI Camera Feed", frame)
                 if cv2.waitKey(1) & 0xFF == ord("q"):
                     break
 
         except Exception as e:
             print(f"Error: {e}")
-        
+
         finally:
             self.release()
 
@@ -41,6 +41,7 @@ class EcoSortAI:
         """
         Release the camera capture.
         """
+
         if self.capture.isOpened():
             self.capture.release()
             cv2.destroyAllWindows()
