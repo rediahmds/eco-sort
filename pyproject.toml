@@ -1,24 +1,21 @@
 [project]
 name = "eco-sort"
 version = "0.1.0"
-description = "EcoSort computer vision backend that will classify waste types using a camera"
+description = ""
 authors = [
     {name = "rediahmds_fedora.ws",email = "redi.ngoding@gmail.com"}
 ]
 license = {text = "MIT"}
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 dependencies = [
     "opencv-python (>=4.11.0.86,<5.0.0.0)",
+    "teachable-machine (>=1.2.1,<2.0.0)",
+    "ultralytics (>=8.3.127,<9.0.0)",
     "cvzone (>=1.6.1,<2.0.0)",
-    "ultralytics (>=8.3.119,<9.0.0)"
 ]
 
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.group.dev.dependencies]
-pyink = "^24.10.1"
-

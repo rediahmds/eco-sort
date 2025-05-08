@@ -1,5 +1,5 @@
-# ignore YOLO model
-**.pt
+# ignore models
+models/**
 
 # ignore python compiled files
 __pycache__
