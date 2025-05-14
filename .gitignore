@@ -3,3 +3,5 @@ models/**
 
 # ignore python compiled files
 __pycache__
+
+.env
