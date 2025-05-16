@@ -111,13 +111,15 @@ class EcoSortAI:
         """
         Start capturing video from the camera.
         """
+        WINDOW_NAME = "EcoSortAI Camera Feed"
         try:
             self.capture = cv2.VideoCapture(self.camera_source_index)
             self.is_opened = self.capture.isOpened()
             model = YOLO(model=self.model_path, verbose=True)
 
             fps_counter = cv2.TickMeter()
-            fps_counter.start()
+
+            cv2.namedWindow(winname=WINDOW_NAME, flags=cv2.WINDOW_FULLSCREEN)
 
             while self.is_opened:
                 is_success, frame = self.capture.read()
@@ -165,18 +167,25 @@ class EcoSortAI:
                     2,
                 )
 
-                cv2.imshow("EcoSortAI Camera Feed", frame)
+                cv2.imshow(WINDOW_NAME, frame)
 
-                if cv2.waitKey(1) & 0xFF == ord("q"):
+                isEscPressed = cv2.waitKey(1) == 27  # wait for ESC button
+                isWindowVisible = cv2.getWindowProperty(
+                    winname=WINDOW_NAME, prop_id=cv2.WND_PROP_VISIBLE
+                )
+                isCloseWindow = isWindowVisible < 1
+                if isEscPressed or isCloseWindow:
+                    self.release()
                     break
-
-            self.release()
 
         except KeyboardInterrupt as ki:
             print(f"Program interrupted.")
 
         except Exception as e:
             print(f"Error: {e}")
+
+        finally:
+            print("Program ended.")
 
     def release(self):
         """
