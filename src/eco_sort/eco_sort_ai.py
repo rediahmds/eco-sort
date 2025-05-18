@@ -111,16 +111,22 @@ class EcoSortAI:
         """
         Start capturing video from the camera.
         """
-
+        WINDOW_NAME = "EcoSortAI Camera Feed"
         try:
             self.capture = cv2.VideoCapture(self.camera_source_index)
             self.is_opened = self.capture.isOpened()
             model = YOLO(model=self.model_path, verbose=True)
 
+            fps_counter = cv2.TickMeter()
+
+            cv2.namedWindow(winname=WINDOW_NAME, flags=cv2.WINDOW_FULLSCREEN)
+
             while self.is_opened:
                 is_success, frame = self.capture.read()
                 if not is_success:
                     raise Exception("Failed to read frame from camera.")
+
+                fps_counter.start()
 
                 results = model(source=frame, stream=True)
                 for r in results:
@@ -147,12 +153,30 @@ class EcoSortAI:
                             colorT=(18, 24, 9),
                         )
 
-                cv2.imshow("EcoSortAI Camera Feed", frame)
+                fps_counter.stop()
+                fps = fps_counter.getFPS()
+                fps_counter.reset()
 
-                if cv2.waitKey(1) & 0xFF == ord("q"):
+                cv2.putText(
+                    frame,
+                    f"FPS: {fps:.1f}",
+                    (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.7,
+                    (100, 255, 0),
+                    2,
+                )
+
+                cv2.imshow(WINDOW_NAME, frame)
+
+                isEscPressed = cv2.waitKey(1) == 27  # wait for ESC button
+                isWindowVisible = cv2.getWindowProperty(
+                    winname=WINDOW_NAME, prop_id=cv2.WND_PROP_VISIBLE
+                )
+                isCloseWindow = isWindowVisible < 1
+                if isEscPressed or isCloseWindow:
+                    self.release()
                     break
-
-            self.release()
 
         except KeyboardInterrupt as ki:
             print(f"Program interrupted.")
@@ -160,11 +184,13 @@ class EcoSortAI:
         except Exception as e:
             print(f"Error: {e}")
 
+        finally:
+            print("Program ended.")
+
     def release(self):
         """
         Release the camera capture.
         """
-
         if self.capture.isOpened():
             self.capture.release()
             cv2.destroyAllWindows()

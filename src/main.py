@@ -1,4 +1,4 @@
-from eco_sort_ai import EcoSortAI
+from eco_sort.eco_sort_ai import EcoSortAI
 from static.camera_index import CameraIndex
 
 
