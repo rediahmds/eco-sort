@@ -5,11 +5,13 @@ import cv2
 from pathlib import Path
 from ultralytics import YOLO
 import cvzone
+from service.blynk_service import BlynkService, BlynkPins
 
 
 class EcoSortAI:
     def __init__(
         self,
+        blynk_service: BlynkService,
         camera_source_index: CameraIndex | int = CameraIndex.BUILT_IN,
         model_path: str | Path = "/models/yolov8m.pt",
     ):
@@ -18,6 +20,7 @@ class EcoSortAI:
 
         :param camera_source_index: The index of the camera source.
         """
+
         self.camera_source_index = (
             camera_source_index.value
             if isinstance(camera_source_index, CameraIndex)
@@ -25,6 +28,7 @@ class EcoSortAI:
         )
 
         self.model_path = model_path
+        self.blynk_service = blynk_service
 
     def start_capture(self):
         """
@@ -60,6 +64,10 @@ class EcoSortAI:
 
                         id = int(box.cls[0])
                         name = model.names[id]
+
+                        self.blynk_service.updateDatastreamValue(
+                            virtual_pin=BlynkPins.V0, value=name
+                        )
 
                         cvzone.putTextRect(
                             img=frame,
@@ -102,6 +110,7 @@ class EcoSortAI:
 
         except Exception as e:
             print(f"Error: {e}")
+            traceback.print_exc()
 
         finally:
             print("Program ended.")
