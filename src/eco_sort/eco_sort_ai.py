@@ -11,7 +11,7 @@ from service.blynk_service import BlynkService, BlynkPins
 class EcoSortAI:
     def __init__(
         self,
-        blynk_service: BlynkService,
+        blynk_service: BlynkService | None,
         camera_source_index: CameraIndex | int = CameraIndex.BUILT_IN,
         model_path: str | Path = "/models/yolov8m.pt",
     ):
@@ -26,9 +26,13 @@ class EcoSortAI:
             if isinstance(camera_source_index, CameraIndex)
             else camera_source_index
         )
-
         self.model_path = model_path
-        self.blynk_service = blynk_service
+
+        if blynk_service is not None:
+            self.blynk_service = blynk_service
+            self._iot_mode = True
+        else:
+            self._iot_mode = False
 
     def start_capture(self):
         """
@@ -65,9 +69,10 @@ class EcoSortAI:
                         id = int(box.cls[0])
                         name = model.names[id]
 
-                        self.blynk_service.updateDatastreamValue(
-                            virtual_pin=BlynkPins.V0, value=name
-                        )
+                        if self._iot_mode:
+                            self.blynk_service.updateDatastreamValue(
+                                virtual_pin=BlynkPins.V0, value=name
+                            )
 
                         cvzone.putTextRect(
                             img=frame,
