@@ -1,6 +1,7 @@
 import requests
 from static.blynk.blynk_server import BlynkServer
 from static.blynk.blynk_pins import BlynkPins
+import traceback
 
 # Token can be used in both device, dont need to be unique for each
 
@@ -24,9 +25,12 @@ class BlynkService:
                 f"Unknown error while getting data stream value for pin: {virtual_pin}"
             )
 
-    def postDatastreamValue(self, virtual_pin: BlynkPins):
+    def updateDatastreamValue(self, virtual_pin: BlynkPins, value: str):
         pin = virtual_pin.value
+        params = {"token": self.token, pin: value}
         try:
-            res = requests.post()
+            requests.get(f"{self.base_url}/update", params=params)
+
         except Exception as e:
             print(f"Failed to write data to pin: {virtual_pin}")
+            traceback.print_exc()
