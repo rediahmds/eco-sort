@@ -19,6 +19,8 @@ class EcoSortAI:
         Initialize the EcoSortCamera with a camera source index.
 
         :param camera_source_index: The index of the camera source.
+        :param model_path: Path to model file
+        :param blynk_service: 
         """
 
         self.camera_source_index = (
@@ -28,11 +30,8 @@ class EcoSortAI:
         )
         self.model_path = model_path
 
-        if blynk_service is not None:
-            self.blynk_service = blynk_service
-            self._iot_mode = True
-        else:
-            self._iot_mode = False
+        self.blynk_service = blynk_service
+        self._iot_mode = blynk_service is not None
 
     def start_capture(self):
         """

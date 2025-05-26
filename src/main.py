@@ -20,6 +20,6 @@ if __name__ == "__main__":
     eco_ai = EcoSortAI(
         camera_source_index=CameraIndex.BUILT_IN,
         model_path=model_path,
-        blynk_service=None,
+        blynk_service=blynk_service,
     )
     eco_ai.start_capture()
