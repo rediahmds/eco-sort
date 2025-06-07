@@ -69,11 +69,6 @@ class EcoSortAI:
                         id = int(box.cls[0])
                         name = model.names[id]
 
-                        if self._iot_mode:
-                            self.blynk_service.updateDatastreamValue(
-                                virtual_pin=BlynkPins.V0, value=name
-                            )
-
                         cvzone.putTextRect(
                             img=frame,
                             text=f"{name} {conf}",
@@ -84,6 +79,11 @@ class EcoSortAI:
                             colorR=(183, 243, 157),
                             colorT=(18, 24, 9),
                         )
+
+                        if self._iot_mode:
+                            self.blynk_service.updateDatastreamValue(
+                                virtual_pin=BlynkPins.V0, value=name
+                            )
 
                 fps_counter.stop()
                 fps = fps_counter.getFPS()
