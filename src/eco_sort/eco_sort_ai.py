@@ -20,7 +20,8 @@ class EcoSortAI:
 
         :param camera_source_index: The index of the camera source.
         :param model_path: Path to model file
-        :param blynk_service: 
+        :param blynk_service: Instance of BlynkService for IoT mode. Pass an instance to enable IoT mode.
+        To disable IoT mode, pass `None` or just ignore this parameter.
         """
 
         self.camera_source_index = (
