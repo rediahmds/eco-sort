@@ -7,5 +7,12 @@
         ],
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "ms-python.black-formatter",
+    },
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": true,
+        "markdown": true,
+        "scminput": false,
+        "python": false,
     }
 }
