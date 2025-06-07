@@ -11,7 +11,7 @@ from service.blynk_service import BlynkService, BlynkPins
 class EcoSortAI:
     def __init__(
         self,
-        blynk_service: BlynkService | None,
+        blynk_service: BlynkService | None = None,
         camera_source_index: CameraIndex | int = CameraIndex.BUILT_IN,
         model_path: str | Path = "/models/yolov8m.pt",
     ):
