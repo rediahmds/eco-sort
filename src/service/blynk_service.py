@@ -17,7 +17,6 @@ class BlynkService:
         pin = virtual_pin.value
         try:
             response = requests.get(f"{self.base_url}/get?token={self.token}&{pin}")
-            print(f"Response: {response.json()}")
         except Exception as e:
             print(
                 f"Unknown error while getting data stream value for pin: {virtual_pin}"
@@ -29,7 +28,6 @@ class BlynkService:
         params = {"token": self.token, pin: value}
         try:
             response = requests.get(f"{self.base_url}/update", params=params)
-            print(f"Response: {response.json()}")
         except Exception as e:
             print(f"Failed to write data to pin: {virtual_pin}")
             traceback.print_exc()
