@@ -1,5 +1,7 @@
 import math
 import traceback
+import time
+
 from static.camera_index import CameraIndex
 import cv2
 from pathlib import Path
@@ -14,14 +16,19 @@ class EcoSortAI:
         blynk_service: BlynkService | None = None,
         camera_source_index: CameraIndex | int = CameraIndex.BUILT_IN,
         model_path: str | Path = "/models/yolov8m.pt",
+        *,
+        confidence_threshold: float = 0.6,
+        send_interval: float = 2.5,
     ):
         """
         Initialize the EcoSortCamera with a camera source index.
 
         :param camera_source_index: The index of the camera source.
-        :param model_path: Path to model file
+        :param model_path: Path to model file. Default is `./models/yolov8m.pt`
         :param blynk_service: Instance of BlynkService for IoT mode. Pass an instance to enable IoT mode.
         To disable IoT mode, pass `None` or just ignore this parameter.
+        :param confidence_threshold: Threshold to send inference result to blynk platform. Default to 0.6.
+        :param send_interval: Interval to send data to blynk in terms of seconds. Default to 2.5 second
         """
 
         self.camera_source_index = (
@@ -30,9 +37,14 @@ class EcoSortAI:
             else camera_source_index
         )
         self.model_path = model_path
-
         self.blynk_service = blynk_service
+
         self._iot_mode = blynk_service is not None
+        self._confidence_threshold = confidence_threshold
+        self._last_label = None
+        self._last_sent_time = 0
+        self._send_interval = send_interval
+        self._last_blynk_message_display_time = 0
 
     def start_capture(self):
         """
@@ -57,47 +69,62 @@ class EcoSortAI:
 
                 results = model(source=frame, stream=True)
                 for r in results:
+                    print("=== RESULT ===", r, "=== RESULT ===", sep="\n")
                     boxes = r.boxes
                     for box in boxes:
+                        print("=== BOX ===", box, "=== BOX ===", sep="\n")
                         x1, y1, x2, y2 = box.xyxy[0]
                         x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
                         w, h = x2 - x1, y2 - y1
                         cvzone.cornerRect(frame, (x1, y1, w, h))
 
                         conf = math.ceil((box.conf[0] * 100)) / 100
+                        if conf >= self._confidence_threshold:
+                            id = int(box.cls[0])
+                            name = model.names[id]
 
-                        id = int(box.cls[0])
-                        name = model.names[id]
-
-                        cvzone.putTextRect(
-                            img=frame,
-                            text=f"{name} {conf}",
-                            pos=(max(0, x1), max(35, y1)),
-                            thickness=1,
-                            scale=1,
-                            colorB=(183, 243, 157),
-                            colorR=(183, 243, 157),
-                            colorT=(18, 24, 9),
-                        )
-
-                        if self._iot_mode:
-                            self.blynk_service.updateDatastreamValue(
-                                virtual_pin=BlynkPins.V0, value=name
+                            self._drawBoundingBox(
+                                frame=frame, name=name, conf=conf, x1=x1, y1=y1
                             )
+
+                            if self._iot_mode:
+                                now = time.time()
+                                is_label_different = name != self._last_label
+                                is_should_send = (
+                                    now - self._last_sent_time > self._send_interval
+                                )
+
+                                if (
+                                    self._last_label is None
+                                    or is_label_different
+                                    or is_should_send
+                                ):
+                                    self.blynk_service.updateDatastreamValue(
+                                        virtual_pin=BlynkPins.V0, value=name
+                                    )
+                                    self._last_label = name
+                                    self._last_sent_time = now
+
+                            if self._iot_mode and (
+                                time.time() - self._last_blynk_message_display_time
+                                > self._send_interval
+                            ):
+                                height = frame.shape[0]
+                                cv2.putText(
+                                    frame,
+                                    "Sending data to Blynk",
+                                    (10, height - 20),
+                                    cv2.FONT_HERSHEY_SIMPLEX,
+                                    0.7,
+                                    (255, 200, 100),  # Orange-like color
+                                    2,
+                                )
 
                 fps_counter.stop()
                 fps = fps_counter.getFPS()
                 fps_counter.reset()
 
-                cv2.putText(
-                    frame,
-                    f"FPS: {fps:.1f}",
-                    (10, 30),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.7,
-                    (100, 255, 0),
-                    2,
-                )
+                self._drawFPScounter(frame, fps)
 
                 cv2.imshow(WINDOW_NAME, frame)
 
@@ -127,3 +154,26 @@ class EcoSortAI:
         if self.capture.isOpened():
             self.capture.release()
             cv2.destroyAllWindows()
+
+    def _drawBoundingBox(self, *, frame, name: str, conf: float, x1: int, y1: int):
+        cvzone.putTextRect(
+            img=frame,
+            text=f"{name} {conf}",
+            pos=(max(0, x1), max(35, y1)),
+            thickness=1,
+            scale=1,
+            colorB=(183, 243, 157),
+            colorR=(183, 243, 157),
+            colorT=(18, 24, 9),
+        )
+
+    def _drawFPScounter(self, frame, fps: float):
+        cv2.putText(
+            img=frame,
+            text=f"FPS: {fps:.1f}",
+            org=(10, 30),
+            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+            fontScale=0.7,
+            color=(100, 255, 0),
+            thickness=2,
+        )
