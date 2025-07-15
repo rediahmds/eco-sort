@@ -95,7 +95,7 @@ class EcoSortAI:
                                 )
 
                                 if (
-                                    self._last_label is None
+                                    self._last_label is None  # first run
                                     or is_label_different
                                     or is_should_send
                                 ):
@@ -116,7 +116,7 @@ class EcoSortAI:
                                     (10, height - 20),
                                     cv2.FONT_HERSHEY_SIMPLEX,
                                     0.7,
-                                    (255, 200, 100),  # Orange-like color
+                                    (255, 200, 100),
                                     2,
                                 )
 
@@ -138,7 +138,7 @@ class EcoSortAI:
                     break
 
         except KeyboardInterrupt as ki:
-            print(f"Program interrupted.")
+            print(f"\nProgram interrupted.")
 
         except Exception as e:
             print(f"Error: {e}")
