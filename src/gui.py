@@ -9,6 +9,7 @@ from collections import deque, Counter
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import time
 
 # --- Dependencies from the Object Detection script ---
 # Note: You must ensure these modules are available in your project structure.
@@ -73,7 +74,6 @@ class WasteClassifier:
         return True if label in self.recyclable_class else False
 
 
-# --- Helper function to find cameras ---
 def get_available_cameras(max_index=5):
     available = []
     for i in range(max_index):
