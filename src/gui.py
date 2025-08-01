@@ -48,6 +48,9 @@ class WasteClassifier:
         self.model = self.model.to(self.device)
         self.model.eval()
 
+        self.recyclable_class = ["glass", "metal", "plastic", "textiles"]
+        self.organic_class = ["organic", "paper"]
+
         self.transform = transforms.Compose(
             [
                 transforms.Resize((128, 128)),
@@ -65,6 +68,9 @@ class WasteClassifier:
             confidence = probs[pred_idx].item()
             label = self.class_names[pred_idx] if confidence > 0.6 else "Tidak yakin"
         return label, confidence
+
+    def decide_recyclability(self, label: str):
+        return True if label in self.recyclable_class else False
 
 
 # --- Helper function to find cameras ---
