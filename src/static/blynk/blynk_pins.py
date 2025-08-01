@@ -23,3 +23,4 @@ class BlynkPins(Enum):
     V2 = "v2"
     V3 = "v3"
     V4 = "v4"
+    V7 = "v7"
