@@ -39,9 +39,9 @@ class WasteClassifier:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.class_names = class_names
 
-        self.model = models.mobilenet_v2(weights=None)
-        self.model.classifier[1] = nn.Linear(
-            in_features=self.model.classifier[1].in_features,
+        self.model = models.mobilenet_v3_large(weights=None)
+        self.model.classifier[3] = nn.Linear(
+            in_features=self.model.classifier[3].in_features,
             out_features=len(class_names),
         )
         self.model.load_state_dict(torch.load(model_path, map_location=self.device))
