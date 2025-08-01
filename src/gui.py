@@ -26,6 +26,7 @@ class WasteClassifier:
         self,
         model_path: str,
         class_names=[
+            "background",
             "glass",
             "metal",
             "organic",
