@@ -125,8 +125,11 @@ class WasteRecognizerApp:
             else 0
         )
 
+        self._DESIRED_FPS = 10
+        self._FRAME_DELAY = 1.0 / self._DESIRED_FPS
+
         self.prediction_history = deque(maxlen=20)
-        self.stable_prediction = "Menganalisis..."
+        self.stable_prediction: str = "Menganalisis..."
 
     def run(self):
         st.title("♻️ Waste Recognizer")
@@ -146,6 +149,7 @@ class WasteRecognizerApp:
         frame_window = st.image([])
         prediction_text = st.empty()
 
+        last_frame_time = time.time()
         if run_camera:
             cap = cv2.VideoCapture(self.camera_index)
             while run_camera:
@@ -154,21 +158,29 @@ class WasteRecognizerApp:
                     st.warning("Tidak bisa membaca frame dari kamera.")
                     break
 
-                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                frame_window.image(frame_rgb, channels="RGB")
+                now = time.time()
+                if now - last_frame_time > self._FRAME_DELAY:
+                    last_frame_time = now
 
-                img_pil = Image.fromarray(frame_rgb)
-                label, confidence = self.classifier.predict(img_pil)
+                    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    frame_window.image(frame_rgb, channels="RGB")
 
-                self.prediction_history.append(label)
-                if len(self.prediction_history) == self.prediction_history.maxlen:
-                    most_common = Counter(self.prediction_history).most_common(1)[0]
-                    if most_common[1] > (self.prediction_history.maxlen / 2):
-                        self.stable_prediction = most_common[0]
+                    img_pil = Image.fromarray(frame_rgb)
+                    label, confidence = self.classifier.predict(img_pil)
 
-                prediction_text.markdown(
-                    f"**Prediksi Stabil:** `{self.stable_prediction}`"
-                )
+                    self.prediction_history.append(label)
+                    if len(self.prediction_history) == self.prediction_history.maxlen:
+                        most_common = Counter(self.prediction_history).most_common(1)[0]
+                        if most_common[1] > (self.prediction_history.maxlen / 2):
+                            self.stable_prediction = most_common[0]
+                            
+                            is_recyclable = self.classifier.decide_recyclability(self.stable_prediction)
+                            if is_recyclable:
+                                self.blynk_service.updateDatastreamValue(Bly)
+
+                    prediction_text.markdown(
+                        f"##### Prediksi Stabil: `{self.stable_prediction} ({confidence})`"
+                    )
             cap.release()
         else:
             st.info("Aktifkan kamera untuk mulai klasifikasi sampah.")
