@@ -13,11 +13,17 @@ class BlynkService:
         else:
             self.base_url = f"https://{server}/external/api"
 
-    def getDatastreamValue(self, virtual_pin: BlynkPins):
+    def getDatastreamValue(self, virtual_pin: BlynkPins) -> str:
         pin = virtual_pin.value
+        params = {
+            "token": self.token,
+            "pin": pin,
+        }
         try:
-            response = requests.get(f"{self.base_url}/get?token={self.token}&{pin}")
+            response = requests.get(f"{self.base_url}/get", params=params)
             print(f"Response data: \n{response.text}")
+
+            return response.text
         except Exception as e:
             print(
                 f"Unknown error while getting data stream value for pin: {virtual_pin}"
@@ -31,7 +37,7 @@ class BlynkService:
             response = requests.get(f"{self.base_url}/update", params=params)
             status_code = response.status_code
 
-            return True if status_code >= 200 or status_code < 300 else False
+            return True if status_code in [200, 201] else False
         except Exception as e:
             print(f"Failed to write data to pin: {virtual_pin}")
             print(f"Reason: {e}")
