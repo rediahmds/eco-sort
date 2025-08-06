@@ -9,7 +9,7 @@ import cvzone
 from service.blynk_service import BlynkService, BlynkPins
 
 # Assuming this is in a 'static' folder
-from static.camera_index import CameraIndex
+from static.cam.camera_index import CameraIndex
 from service.servo_state import ServoState
 
 

@@ -1,6 +1,7 @@
 import requests
 from static.blynk.blynk_server import BlynkServer
 from static.blynk.blynk_pins import BlynkPins
+from service.servo_state import ServoState
 import traceback
 
 
@@ -44,3 +45,14 @@ class BlynkService:
             traceback.print_exc()
 
             return False
+
+    def waitServoReady(self):
+        """
+        Keep reading V7 state on Blynk.
+        If it "ready", it will stays in the loop.
+        """
+        while True:
+            state = self.getDatastreamValue(BlynkPins.V7)
+            is_ready = ServoState.is_ready(state)
+            if is_ready:
+                return

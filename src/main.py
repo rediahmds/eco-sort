@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 load_dotenv(verbose=True)
 
 from eco_sort.eco_sort_ai import EcoSortAI
-from static.camera_index import CameraIndex
+from static.cam.camera_index import CameraIndex
 from service.blynk_service import BlynkService
 
 
